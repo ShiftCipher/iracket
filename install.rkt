@@ -16,22 +16,26 @@
 (define-runtime-path kernel-path "static/kernel.json")
 (define-runtime-path-list js-paths (list "static/custom.js" "static/c3.js"))
 
-(define *use-ipython-dir* (make-parameter #f))
+(define *use-jupyter-dir* (make-parameter #f))
 
 ;; ----
 
-(define (ipython-exe)
-  (or (find-executable-path "ipython")
-      (raise-user-error "Cannot find ipython configuration directory; try --ipython-dir")))
+(define (get-jupyter-dir)
+  (or (*use-jupyter-dir*)
+      (let ([jupyter (find-executable-path "jupyter")])
+        (and jupyter
+             (string-trim
+              (with-output-to-string
+                (lambda () (system*/exit-code jupyter "--data-dir"))))))))
 
-(define (ipython-dir)
-  (or (*use-ipython-dir*)
-      (string-trim
-       (with-output-to-string
-         (lambda () (system*/exit-code (ipython-exe) "locate"))))))
+(define (get-racket-kernel-dir)
+  (define jupyter-dir (get-jupyter-dir))
+  (and jupyter-dir (build-path jupyter-dir "kernels" "racket")))
 
 (define (write-iracket-kernel-json!)
-  (define racket-kernel-dir (build-path (ipython-dir) "kernels" "racket"))
+  (define racket-kernel-dir
+    (or (get-racket-kernel-dir)
+        (raise-user-error "Cannot find jupyter configuration directory; try --jupypter-dir")))
   (make-directory* racket-kernel-dir)
   (define kernel-json
     (regexp-replace* (regexp-quote "IRACKET_SRC_DIR")
@@ -49,9 +53,9 @@
   (command-line
    #:program "iracket/install.rkt"
    #:once-any
-   [("--ipython-dir") use-ipython-dir
-    "Write to given ipython configuration directory"
-    (*use-ipython-dir* use-ipython-dir)]
+   [("--jupyter-dir") use-jupyter-dir
+    "Write to given jupyter configuration directory (normally `jupyter --data-dir`)"
+    (*use-jupyter-dir* use-jupyter-dir)]
    #:args ()
    (write-iracket-kernel-json!)))
 
