@@ -21,4 +21,4 @@
 ;; (define scribblings '(["iracket.scrbl" ()]))
 
 ;; Doesn't actually do installation, just prints message.
-(define post-install-collection "install.rkt")
+(define install-collection "install.rkt")

@@ -62,9 +62,12 @@
 ;; ----------------------------------------
 
 ;; raco setup hook; doesn't actually do installation, just prints message
-(define (post-installer _parent _here _user? _inst?)
-  (printf "\n***\n")
-  (printf "*** IRacket must register its kernel with jupyter before it can be used.\n")
-  (printf "*** Run `racket -l iracket/install` to finish installation.\n")
-  (printf "***\n\n"))
-(provide post-installer)
+(define (installer _parent _here _user? _inst?)
+  (define kernel-dir (get-racket-kernel-dir))
+  (define kernel-path (and kernel-dir (build-path kernel-dir "kernel.json")))
+  (unless (and kernel-path (file-exists? kernel-path))
+    (printf "\n***\n")
+    (printf "*** IRacket must register its kernel with jupyter before it can be used.\n")
+    (printf "*** Run `racket -l iracket/install` to finish installation.\n")
+    (printf "***\n\n")))
+(provide installer)
