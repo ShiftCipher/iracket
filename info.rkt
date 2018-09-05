@@ -21,4 +21,7 @@
 ;; (define scribblings '(["iracket.scrbl" ()]))
 
 ;; Doesn't actually do installation, just prints message.
-(define install-collection "install.rkt")
+(define install-collection "command.rkt")
+
+(define raco-commands
+  '(("iracket" (submod iracket/install raco) "manage IRacket (Jupyter support)" #f)))
