@@ -100,7 +100,7 @@
     (printf "Replacing old ~s\n" (path->string dest-file)))
   (with-output-to-file dest-file #:exists 'truncate/replace
     (lambda () (write-string kernel-json)))
-  (printf "Kernel json file copied to ~s\n" (path->string dest-file)))
+  (printf "Kernel installed in ~s\n" (path->string racket-kernel-dir)))
 
 ;; ----------------------------------------
 ;; Help
@@ -146,12 +146,16 @@
   (define kernel-dir (get-racket-kernel-dir #t))
   (define kernel-path (and kernel-dir (build-path kernel-dir "kernel.json")))
   (cond [(not kernel-path)
+         (when #t
+           (printf "\n")
+           (printf "  IRacket failed to find the Jupyter kernel directory.\n")
+           (printf "  Run `raco iracket check` for more information.\n\n"))
          (void)]
         [(and kernel-path (file-exists? kernel-path))
          (when #f
-           (printf "IRacket kernel found in ~a.\n" (path->string kernel-dir)))]
+           (printf "  IRacket kernel found in ~s.\n" (path->string kernel-dir)))]
         [else
-         (printf "\n***\n")
-         (printf "*** IRacket must register its kernel with jupyter before it can be used.\n")
-         (printf "*** Run `raco iracket install` to finish installation.\n")
-         (printf "***\n\n")]))
+         (printf "\n")
+         (printf "  IRacket must register its kernel with jupyter before it can be used.\n")
+         (printf "  Run `raco iracket install` to finish installation.\n")
+         (printf "\n")]))
