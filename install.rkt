@@ -20,8 +20,13 @@
 
 ;; ----
 
+(define (new-find-executable-path p)
+  (find-executable-path (if (eq? (system-type 'os) 'windows)
+                            (string-append p ".exe")
+                            p)))
+
 (define (ipython-exe)
-  (or (find-executable-path "ipython")
+  (or (new-find-executable-path "ipython")
       (raise-user-error "Cannot find ipython configuration directory; try --ipython-dir")))
 
 (define (ipython-dir)
